@@ -1,0 +1,18 @@
+---
+- name: Copy Go client files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'Dockerfile', dest: '{{ client_dir }}/Dockerfile' }
+    - { src: 'go.mod', dest: '{{ client_dir }}/go.mod' }
+    - { src: 'go.sum', dest: '{{ client_dir }}/go.sum' }
+    - { src: 'main.go', dest: '{{ client_dir }}/main.go' }
+
+- name: Build Go client Docker image
+  community.docker.docker_image:
+    build:
+      path: "{{ client_dir }}"
+    name: myclient
+    tag: latest
+    source: build

@@ -1,0 +1,22 @@
+---
+- name: Ensure Docker is installed
+  ansible.builtin.package:
+    name: docker
+    state: present
+
+- name: Ensure Docker Compose is installed
+  ansible.builtin.pip:
+    name: docker-compose
+    state: present
+
+- name: Copy traefik docker-compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ traefik_compose_dir }}/docker-compose.yml"
+
+- name: Run traefik docker-compose
+  community.docker.docker_compose:
+    project_src: "{{ traefik_compose_dir }}"
+    files:
+      - docker-compose.yml
+    state: present

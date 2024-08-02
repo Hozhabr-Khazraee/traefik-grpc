@@ -1,0 +1,17 @@
+---
+- name: Copy NestJS gRPC server files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'Dockerfile-server', dest: '{{ nestgrpc_dir }}/Dockerfile' }
+    - { src: 'package.json', dest: '{{ nestgrpc_dir }}/package.json' }
+    - { src: 'src/', dest: '{{ nestgrpc_dir }}/src/' }
+
+- name: Build NestJS gRPC server Docker image
+  community.docker.docker_image:
+    build:
+      path: "{{ nestgrpc_dir }}"
+    name: myserver
+    tag: latest
+    source: build

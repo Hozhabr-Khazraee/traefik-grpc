@@ -1,0 +1,38 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.grpc.address=:50600"
+    ports:
+      - "50600:50600"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - internal
+      - external
+
+  grpc-server:
+    image: myserver:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grpc-server.rule=Host(`grpc.example.com`)"
+      - "traefik.http.routers.grpc-server.entrypoints=grpc"
+      - "traefik.http.services.grpc-server.loadbalancer.server.scheme=h2c"
+    networks:
+      - internal
+
+  external-client:
+    image: myclient:latest
+    command: ["sleep", "infinity"]
+    networks:
+      - external
+
+networks:
+  internal:
+    name: traefik-grpc_default
+  external:
+    name: external_network
